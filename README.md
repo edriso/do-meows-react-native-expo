@@ -68,6 +68,6 @@ Everything else (routing, tabs, etc.) comes from the default Expo setup. No extr
 
 ## Demo video
 
-<video src="assets/demo/preview.mp4" controls width="600"></video>
+**[click to view or download](assets/demo/preview.mp4)**
 
 *Made as a first React Native project.*
