@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { nanoid } from 'nanoid';
+import { nanoid } from 'nanoid/non-secure';
 import {
   Pressable,
   ScrollView,
@@ -23,7 +23,9 @@ export default function HomeScreen() {
   const background = useThemeColor({}, 'background');
   const card = useThemeColor({}, 'card');
   const border = useThemeColor({}, 'border');
+  const textColor = useThemeColor({}, 'text');
   const placeholderColor = useThemeColor({}, 'icon');
+  const deleteColor = useThemeColor({}, 'delete');
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [inputText, setInputText] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
@@ -73,7 +75,11 @@ export default function HomeScreen() {
           <TextInput
             style={[
               styles.input,
-              { backgroundColor: card, borderColor: border },
+              {
+                backgroundColor: card,
+                borderColor: border,
+                color: textColor,
+              },
             ]}
             placeholder="New task..."
             placeholderTextColor={placeholderColor}
@@ -138,7 +144,10 @@ export default function HomeScreen() {
                   pressed && styles.pressedOpacity,
                 ]}
               >
-                <ThemedText type="defaultSemiBold" style={styles.deleteText}>
+                <ThemedText
+                  type="defaultSemiBold"
+                  style={[styles.deleteText, { color: deleteColor }]}
+                >
                   Delete
                 </ThemedText>
               </Pressable>
@@ -173,7 +182,10 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   screenTitle: {
+    marginTop: 16,
     marginBottom: 24,
+    lineHeight: 40,
+    paddingBottom: 4,
   },
   addTaskContainer: {
     flexDirection: 'row',
@@ -286,7 +298,5 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   deleteControl: {},
-  deleteText: {
-    color: '#c00',
-  },
+  deleteText: {},
 });
