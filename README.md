@@ -3,7 +3,7 @@
 A simple, cat-themed task list app built with **Expo** and **React Native**.  
 *~ your daily scratch list ~*
 
-![Do Meows app screenshot](assets/images/screenshot.png)
+![Do Meows app screenshot](assets/demo/screenshot.png)
 
 ---
 
@@ -65,5 +65,9 @@ Everything else (routing, tabs, etc.) comes from the default Expo setup. No extr
   - `cat-close.gif` — shown when you uncomplete a task
 
 ---
+
+## Demo video
+
+<video src="assets/demo/preview.mp4" controls width="600"></video>
 
 *Made as a first React Native project.*
