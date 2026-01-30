@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Image } from 'expo-image';
-import { Button, Platform, StyleSheet, TextInput } from 'react-native';
+import { Button, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { HelloWave } from '@/components/hello-wave';
 import { ThemedText } from '@/components/themed-text';
@@ -27,6 +27,16 @@ export default function HomeScreen() {
     setInputText('');
   };
 
+  const handleToggleComplete = (id: string) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+    );
+  };
+
+  const handleDelete = (id: string) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -48,6 +58,36 @@ export default function HomeScreen() {
           onChangeText={setInputText}
         />
         <Button title="Add" onPress={handleAddTask} />
+      </ThemedView>
+      <ThemedView style={styles.taskList}>
+        {tasks.map((task) => (
+          <View key={task.id} style={styles.taskRow}>
+            <ThemedText
+              style={[styles.taskText, task.completed && styles.taskTextCompleted]}
+              numberOfLines={1}
+            >
+              {task.text}
+            </ThemedText>
+            <View style={styles.taskControls}>
+              <Pressable
+                onPress={() => handleToggleComplete(task.id)}
+                style={styles.taskControl}
+              >
+                <ThemedText type="defaultSemiBold">
+                  {task.completed ? 'Undo' : 'Complete'}
+                </ThemedText>
+              </Pressable>
+              <Pressable
+                onPress={() => handleDelete(task.id)}
+                style={[styles.taskControl, styles.deleteControl]}
+              >
+                <ThemedText type="defaultSemiBold" style={styles.deleteText}>
+                  Delete
+                </ThemedText>
+              </Pressable>
+            </View>
+          </View>
+        ))}
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
@@ -125,6 +165,40 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
+  },
+  taskList: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  taskRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+  },
+  taskText: {
+    flex: 1,
+  },
+  taskTextCompleted: {
+    textDecorationLine: 'line-through',
+    opacity: 0.7,
+  },
+  taskControls: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  taskControl: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  deleteControl: {},
+  deleteText: {
+    color: '#c00',
   },
   stepContainer: {
     gap: 8,
