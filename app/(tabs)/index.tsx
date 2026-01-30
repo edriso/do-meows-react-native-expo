@@ -23,10 +23,10 @@ type FeedbackType = 'completed' | 'deleted' | 'added' | 'uncompleted';
 const FEEDBACK_DURATION_MS = 3500;
 
 const CAT_IMAGES: Record<FeedbackType, number> = {
-  completed: require('@/assets/images/cat-yay.gif'),
-  deleted: require('@/assets/images/cat-sus.gif'),
-  added: require('@/assets/images/cat-watching.gif'),
-  uncompleted: require('@/assets/images/cat-close.gif'),
+  completed: require('@/assets/images/cats/cat-yay.gif'),
+  deleted: require('@/assets/images/cats/cat-sus.gif'),
+  added: require('@/assets/images/cats/cat-watching.gif'),
+  uncompleted: require('@/assets/images/cats/cat-close.gif'),
 };
 
 export default function HomeScreen() {

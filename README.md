@@ -3,6 +3,8 @@
 A simple, cat-themed task list app built with **Expo** and **React Native**.  
 *~ your daily scratch list ~*
 
+![Do Meows app screenshot](assets/images/screenshot.png)
+
 ---
 
 ## How to set up and run the app
@@ -55,7 +57,12 @@ Everything else (routing, tabs, etc.) comes from the default Expo setup. No extr
 - **`app/(tabs)/index.tsx`** — Main screen: title, input, Add button, and task list with cat feedback overlay.
 - **`app/(tabs)/_layout.tsx`** — Single “Tasks” tab with checklist icon.
 - **`constants/theme.ts`** — Colors for light and dark mode (soft blue, card, delete, etc.).
-- **`assets/images/`** — Cat feedback GIFs: `cat-yay.gif`, `cat-sus.gif`, `cat-watching.gif`, `cat-close.gif`.
+- **`assets/images/screenshot.png`** — App screenshot (for README and docs).
+- **`assets/images/cats/`** — Cat feedback GIFs:
+  - `cat-yay.gif` — shown when you complete a task
+  - `cat-sus.gif` — shown when you delete a task
+  - `cat-watching.gif` — shown when you add a task
+  - `cat-close.gif` — shown when you uncomplete a task
 
 ---
 
