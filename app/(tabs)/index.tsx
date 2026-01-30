@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type TaskType = {
   id: string;
@@ -19,6 +20,10 @@ export type TaskType = {
 const FEEDBACK_DURATION_MS = 2000;
 
 export default function HomeScreen() {
+  const background = useThemeColor({}, 'background');
+  const card = useThemeColor({}, 'card');
+  const border = useThemeColor({}, 'border');
+  const placeholderColor = useThemeColor({}, 'icon');
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [inputText, setInputText] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
@@ -55,42 +60,44 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.screenContent}
-      keyboardShouldPersistTaps="handled"
-    >
-      <ThemedText type="title" style={styles.screenTitle}>
-        My Tasks
-      </ThemedText>
-      <ThemedView style={styles.addTaskContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="New task..."
-          placeholderTextColor="#888"
-          value={inputText}
-          onChangeText={setInputText}
-        />
-        <Pressable
-          onPress={handleAddTask}
-          style={({ pressed }) => [
-            styles.addButton,
-            pressed && styles.pressedOpacity,
-          ]}
-        >
-          <ThemedText type="defaultSemiBold" style={styles.addButtonText}>
-            Add
-          </ThemedText>
-        </Pressable>
-      </ThemedView>
-      {feedbackMessage !== null && (
-        <ThemedView style={styles.feedbackBanner}>
-          <ThemedText style={styles.feedbackText}>{feedbackMessage}</ThemedText>
+    <View style={[styles.screen, { backgroundColor: background }]}>
+      <ScrollView
+        style={[styles.scrollView, { backgroundColor: background }]}
+        contentContainerStyle={styles.screenContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <ThemedText type="title" style={styles.screenTitle}>
+          Little Things Todo
+        </ThemedText>
+        <ThemedView style={styles.addTaskContainer}>
+          <TextInput
+            style={[
+              styles.input,
+              { backgroundColor: card, borderColor: border },
+            ]}
+            placeholder="New task..."
+            placeholderTextColor={placeholderColor}
+            value={inputText}
+            onChangeText={setInputText}
+          />
+          <Pressable
+            onPress={handleAddTask}
+            style={({ pressed }) => [
+              styles.addButton,
+              pressed && styles.pressedOpacity,
+            ]}
+          >
+            <ThemedText type="defaultSemiBold" style={styles.addButtonText}>
+              Add
+            </ThemedText>
+          </Pressable>
         </ThemedView>
-      )}
-      <ThemedView style={styles.taskList}>
+        <ThemedView style={styles.taskList}>
         {tasks.map((task) => (
-          <View key={task.id} style={styles.taskRow}>
+          <View
+            key={task.id}
+            style={[styles.taskRow, { backgroundColor: card, borderColor: border }]}
+          >
             <Pressable
               onPress={() => handleToggleComplete(task.id)}
               style={({ pressed }) => [
@@ -138,8 +145,16 @@ export default function HomeScreen() {
             </View>
           </View>
         ))}
-      </ThemedView>
-    </ScrollView>
+        </ThemedView>
+      </ScrollView>
+      {feedbackMessage !== null && (
+        <View style={styles.feedbackOverlay} pointerEvents="none">
+          <ThemedView style={styles.feedbackBanner}>
+            <ThemedText style={styles.feedbackText}>{feedbackMessage}</ThemedText>
+          </ThemedView>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -147,6 +162,9 @@ const MIN_TOUCH_TARGET = 44;
 
 const styles = StyleSheet.create({
   screen: {
+    flex: 1,
+  },
+  scrollView: {
     flex: 1,
   },
   screenContent: {
@@ -166,7 +184,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 14,
@@ -174,7 +191,7 @@ const styles = StyleSheet.create({
     minHeight: MIN_TOUCH_TARGET,
   },
   addButton: {
-    backgroundColor: '#0a7',
+    backgroundColor: '#5b9bd5',
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 10,
@@ -184,15 +201,27 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
   },
+  feedbackOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    top: undefined,
+    bottom: 32,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    zIndex: 10,
+  },
   feedbackBanner: {
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    backgroundColor: 'rgba(0,120,200,0.15)',
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(91,155,213,0.95)',
     borderRadius: 10,
+    alignSelf: 'stretch',
   },
   feedbackText: {
     fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
   },
   pressedOpacity: {
     opacity: 0.7,
@@ -207,7 +236,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 10,
     minHeight: MIN_TOUCH_TARGET + 16,
   },
@@ -224,14 +252,14 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: '#666',
+    borderColor: '#5b9bd5',
     borderRadius: 4,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#0a7',
-    borderColor: '#0a7',
+    backgroundColor: '#5b9bd5',
+    borderColor: '#5b9bd5',
   },
   checkboxCheck: {
     color: '#fff',
@@ -244,8 +272,7 @@ const styles = StyleSheet.create({
   },
   taskTextCompleted: {
     textDecorationLine: 'line-through',
-    opacity: 0.6,
-    color: '#888',
+    opacity: 0.65,
   },
   taskControls: {
     flexDirection: 'row',
