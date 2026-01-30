@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid/non-secure';
 import {
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -17,7 +18,16 @@ export type TaskType = {
   completed: boolean;
 };
 
-const FEEDBACK_DURATION_MS = 2000;
+type FeedbackType = 'completed' | 'deleted' | 'added' | 'uncompleted';
+
+const FEEDBACK_DURATION_MS = 2500;
+
+const CAT_IMAGES: Record<FeedbackType, number> = {
+  completed: require('@/assets/images/cat-yay.gif'),
+  deleted: require('@/assets/images/cat-sus.gif'),
+  added: require('@/assets/images/cat-watching.gif'),
+  uncompleted: require('@/assets/images/cat-close.gif'),
+};
 
 export default function HomeScreen() {
   const background = useThemeColor({}, 'background');
@@ -28,11 +38,11 @@ export default function HomeScreen() {
   const deleteColor = useThemeColor({}, 'delete');
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [inputText, setInputText] = useState('');
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null);
 
-  const showFeedback = (message: string) => {
-    setFeedbackMessage(message);
-    setTimeout(() => setFeedbackMessage(null), FEEDBACK_DURATION_MS);
+  const showFeedback = (type: FeedbackType) => {
+    setFeedbackType(type);
+    setTimeout(() => setFeedbackType(null), FEEDBACK_DURATION_MS);
   };
 
   const handleAddTask = () => {
@@ -42,6 +52,7 @@ export default function HomeScreen() {
       { id: nanoid(), text: inputText.trim(), completed: false },
     ]);
     setInputText('');
+    showFeedback('added');
   };
 
   const handleToggleComplete = (id: string) => {
@@ -50,15 +61,15 @@ export default function HomeScreen() {
         t.id === id ? { ...t, completed: !t.completed } : t
       );
       const task = next.find((t) => t.id === id);
-      if (task?.completed) showFeedback('Task completed');
-      else showFeedback('Task uncompleted');
+      if (task?.completed) showFeedback('completed');
+      else showFeedback('uncompleted');
       return next;
     });
   };
 
   const handleDelete = (id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
-    showFeedback('Task deleted');
+    showFeedback('deleted');
   };
 
   return (
@@ -68,9 +79,14 @@ export default function HomeScreen() {
         contentContainerStyle={styles.screenContent}
         keyboardShouldPersistTaps="handled"
       >
-        <ThemedText type="title" style={styles.screenTitle}>
-          Little Things Todo
-        </ThemedText>
+        <View style={styles.titleBlock}>
+          <ThemedText type="title" style={styles.screenTitle}>
+            Do Mewas
+          </ThemedText>
+          <ThemedText style={styles.screenSubtitle}>
+            ~ your daily scratch list ~
+          </ThemedText>
+        </View>
         <ThemedView style={styles.addTaskContainer}>
           <TextInput
             style={[
@@ -156,11 +172,15 @@ export default function HomeScreen() {
         ))}
         </ThemedView>
       </ScrollView>
-      {feedbackMessage !== null && (
+      {feedbackType !== null && (
         <View style={styles.feedbackOverlay} pointerEvents="none">
-          <ThemedView style={styles.feedbackBanner}>
-            <ThemedText style={styles.feedbackText}>{feedbackMessage}</ThemedText>
-          </ThemedView>
+          <View style={styles.feedbackCat}>
+            <Image
+              source={CAT_IMAGES[feedbackType]}
+              style={styles.feedbackCatImage}
+              resizeMode="contain"
+            />
+          </View>
         </View>
       )}
     </View>
@@ -181,11 +201,19 @@ const styles = StyleSheet.create({
     paddingTop: 24,
     paddingBottom: 40,
   },
-  screenTitle: {
+  titleBlock: {
     marginTop: 16,
     marginBottom: 24,
+  },
+  screenTitle: {
     lineHeight: 40,
     paddingBottom: 4,
+  },
+  screenSubtitle: {
+    fontSize: 15,
+    opacity: 0.85,
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   addTaskContainer: {
     flexDirection: 'row',
@@ -216,24 +244,26 @@ const styles = StyleSheet.create({
   feedbackOverlay: {
     ...StyleSheet.absoluteFillObject,
     top: undefined,
-    bottom: 32,
-    left: 20,
-    right: 20,
+    bottom: 48,
+    left: 24,
+    right: 24,
     alignItems: 'center',
     justifyContent: 'flex-end',
     zIndex: 10,
   },
-  feedbackBanner: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: 'rgba(91,155,213,0.95)',
-    borderRadius: 10,
-    alignSelf: 'stretch',
+  feedbackCat: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 16,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  feedbackText: {
-    fontSize: 14,
-    color: '#fff',
-    textAlign: 'center',
+  feedbackCatImage: {
+    width: 140,
+    height: 140,
   },
   pressedOpacity: {
     opacity: 0.7,
