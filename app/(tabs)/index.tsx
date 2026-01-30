@@ -14,9 +14,17 @@ export type TaskType = {
   completed: boolean;
 };
 
+const FEEDBACK_DURATION_MS = 2000;
+
 export default function HomeScreen() {
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [inputText, setInputText] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+  const showFeedback = (message: string) => {
+    setFeedbackMessage(message);
+    setTimeout(() => setFeedbackMessage(null), FEEDBACK_DURATION_MS);
+  };
 
   const handleAddTask = () => {
     if (!inputText.trim()) return;
@@ -28,13 +36,20 @@ export default function HomeScreen() {
   };
 
   const handleToggleComplete = (id: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+    setTasks((prev) => {
+      const next = prev.map((t) =>
+        t.id === id ? { ...t, completed: !t.completed } : t
+      );
+      const task = next.find((t) => t.id === id);
+      if (task?.completed) showFeedback('Task completed');
+      else showFeedback('Task uncompleted');
+      return next;
+    });
   };
 
   const handleDelete = (id: string) => {
     setTasks((prev) => prev.filter((t) => t.id !== id));
+    showFeedback('Task deleted');
   };
 
   return (
@@ -59,12 +74,20 @@ export default function HomeScreen() {
         />
         <Button title="Add" onPress={handleAddTask} />
       </ThemedView>
+      {feedbackMessage !== null && (
+        <ThemedView style={styles.feedbackBanner}>
+          <ThemedText style={styles.feedbackText}>{feedbackMessage}</ThemedText>
+        </ThemedView>
+      )}
       <ThemedView style={styles.taskList}>
         {tasks.map((task) => (
           <View key={task.id} style={styles.taskRow}>
             <Pressable
               onPress={() => handleToggleComplete(task.id)}
-              style={styles.checkboxWrapper}
+              style={({ pressed }) => [
+                styles.checkboxWrapper,
+                pressed && styles.pressedOpacity,
+              ]}
               hitSlop={8}
             >
               <View style={[styles.checkbox, task.completed && styles.checkboxChecked]}>
@@ -82,7 +105,10 @@ export default function HomeScreen() {
             <View style={styles.taskControls}>
               <Pressable
                 onPress={() => handleToggleComplete(task.id)}
-                style={styles.taskControl}
+                style={({ pressed }) => [
+                  styles.taskControl,
+                  pressed && styles.pressedOpacity,
+                ]}
               >
                 <ThemedText type="defaultSemiBold">
                   {task.completed ? 'Undo' : 'Complete'}
@@ -90,7 +116,11 @@ export default function HomeScreen() {
               </Pressable>
               <Pressable
                 onPress={() => handleDelete(task.id)}
-                style={[styles.taskControl, styles.deleteControl]}
+                style={({ pressed }) => [
+                  styles.taskControl,
+                  styles.deleteControl,
+                  pressed && styles.pressedOpacity,
+                ]}
               >
                 <ThemedText type="defaultSemiBold" style={styles.deleteText}>
                   Delete
@@ -168,6 +198,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 16,
+  },
+  feedbackBanner: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: 'rgba(0,120,200,0.15)',
+    borderRadius: 8,
+  },
+  feedbackText: {
+    fontSize: 14,
+  },
+  pressedOpacity: {
+    opacity: 0.7,
   },
   input: {
     flex: 1,
