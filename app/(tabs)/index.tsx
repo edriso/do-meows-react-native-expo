@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { nanoid } from 'nanoid/non-secure';
+import { Image } from 'expo-image';
 import {
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,7 +20,7 @@ export type TaskType = {
 
 type FeedbackType = 'completed' | 'deleted' | 'added' | 'uncompleted';
 
-const FEEDBACK_DURATION_MS = 2500;
+const FEEDBACK_DURATION_MS = 3500;
 
 const CAT_IMAGES: Record<FeedbackType, number> = {
   completed: require('@/assets/images/cat-yay.gif'),
@@ -39,10 +39,28 @@ export default function HomeScreen() {
   const [tasks, setTasks] = useState<TaskType[]>([]);
   const [inputText, setInputText] = useState('');
   const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null);
+  const [feedbackImageError, setFeedbackImageError] = useState(false);
+  const feedbackTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showFeedback = (type: FeedbackType) => {
+    if (feedbackTimeoutRef.current !== null) {
+      clearTimeout(feedbackTimeoutRef.current);
+      feedbackTimeoutRef.current = null;
+    }
+    setFeedbackImageError(false);
     setFeedbackType(type);
-    setTimeout(() => setFeedbackType(null), FEEDBACK_DURATION_MS);
+    feedbackTimeoutRef.current = setTimeout(() => {
+      setFeedbackType(null);
+      setFeedbackImageError(false);
+      feedbackTimeoutRef.current = null;
+    }, FEEDBACK_DURATION_MS);
+  };
+
+  const FEEDBACK_LABELS: Record<FeedbackType, string> = {
+    completed: 'Done!',
+    deleted: 'Deleted',
+    added: 'Added',
+    uncompleted: 'Undone',
   };
 
   const handleAddTask = () => {
@@ -175,11 +193,19 @@ export default function HomeScreen() {
       {feedbackType !== null && (
         <View style={styles.feedbackOverlay} pointerEvents="none">
           <View style={styles.feedbackCat}>
-            <Image
-              source={CAT_IMAGES[feedbackType]}
-              style={styles.feedbackCatImage}
-              resizeMode="contain"
-            />
+            {feedbackImageError ? (
+              <ThemedText style={styles.feedbackFallbackText}>
+                {FEEDBACK_LABELS[feedbackType]}
+              </ThemedText>
+            ) : (
+              <Image
+                key={feedbackType}
+                source={CAT_IMAGES[feedbackType]}
+                style={styles.feedbackCatImage}
+                contentFit="contain"
+                onError={() => setFeedbackImageError(true)}
+              />
+            )}
           </View>
         </View>
       )}
@@ -264,6 +290,14 @@ const styles = StyleSheet.create({
   feedbackCatImage: {
     width: 140,
     height: 140,
+  },
+  feedbackFallbackText: {
+    fontSize: 18,
+    fontWeight: '600',
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    minWidth: 140,
+    textAlign: 'center',
   },
   pressedOpacity: {
     opacity: 0.7,
